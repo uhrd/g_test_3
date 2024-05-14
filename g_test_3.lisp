@@ -25,33 +25,39 @@
     (if (and (< 0 (+ x 1)) (< (+ x 1) xl)) (nth (+ x 1) (nth y board)))
     (if (and (< 0 (+ y 1)) (< (+ y 1) yl)) (nth x (nth (+ y 1) board))) )))
 (defun validate-construction (out board chars-list)
-  (let ((prev-adjacent (list)) (prev-madjacent (list)) (chain (list)))
+  (let ((prev-adjacent (list)) (prev-madjacent (list)) (chain (list)) (any-match (list)))
   (dotimes (c (length chars-list))
     (let ((chars (length (nth c chars-list))) 
           (char (nth 2 (car (nth c chars-list))))
-          (match (list)) (any-match nil))
+          (match (list)) (char-match (list)))
       (format out "~a    prev-madjacent: ~a ~%" char prev-madjacent)
       (if (= c 0) (setf chain (list char)))
       (dotimes (n chars)
         (let* ((cell (nth n (nth c chars-list)))
                (adjacent (adjacent-cells board (nth 0 cell) (nth 1 cell))))
+;          (flet ((any (m) (reduce (lambda (x y) (or x y)) m)))
+          (setf any-match (list))
           (dolist (adj prev-adjacent)
             (setf match (if (= 4 (length match))
-                (list (equal (nth 2 cell) adj))
+                (list (equal (nth 2 cell) adj)) ; 
                 (cons (equal (nth 2 cell) adj) match)) ; reset instead of consing a 5th
-              any-match (reduce (lambda (x y) (or x y)) match))
+              any-match (cons (reduce (lambda (x y) (or x y)) match) any-match))
             (format out "selected: ~a   previous: ~14a match: ~a ~%" (nth 2 cell) adj (car match)) )
           (format out "selected: ~a   adjacent: ~14a prev-adjacent: ~14a   any-match: ~a  matches: ~a ~%"
-            (nth 2 cell) adjacent prev-adjacent any-match (length match))
-          (if any-match (setf prev-madjacent prev-adjacent)) ; to continue the chain
-          (setf prev-adjacent adjacent)
-        )
+            (nth 2 cell) adjacent prev-adjacent
+             (if (< 1 (length any-match)) (car any-match) any-match)  (length match))
+          (if (car any-match) (setf prev-madjacent prev-adjacent)) ; to continue the chain
+          (setf prev-adjacent adjacent
+            char-match (cons (reduce (lambda (x y) (or x y)) (cons nil any-match)) char-match))
+        );)
       )
-    (format out "chain: ~a ~%"
-      (reverse (if any-match (setf chain (cons char chain)))))
+    (format out "chain: ~20a char-match: ~a ~%"
+      (reverse (if ;(car any-match)
+  (reduce (lambda (x y) (or x y)) (cons nil char-match))
+   (setf chain (cons char chain)))) char-match)
     )
-  )
-))
+  ))
+)
 (defun construct-waifu (out chars-list) ; exploratory
   (format out "~a ~%" chars-list)
   (dotimes (c (length chars-list))
