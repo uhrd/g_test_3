@@ -27,7 +27,7 @@
 (defun validate-construction (out board chars-list)
   (let ((prev-adjacent (list)) (prev-madjacent (list)) (chain (list)) (char-match (list)))
   (dotimes (c (length chars-list))
-    (let ((chars (length (nth c chars-list))) 
+    (let ((chars (length (nth c chars-list))) (choose nil)
           (char (nth 2 (car (nth c chars-list))))
           (match (list)) (adjacent-match (list)))
       (format out "~a    prev-madjacent: ~a ~%" char prev-madjacent)
@@ -49,12 +49,13 @@
           (if (car char-match) (setf prev-madjacent prev-adjacent)) ; to continue the chain
           (setf prev-adjacent adjacent
             adjacent-match (cons (reduce (lambda (x y) (or x y)) (cons nil char-match)) adjacent-match))
+          (if (car adjacent-match) (setf choose (list (nth 0 cell) (nth 1 cell))))
         );)
       )
-    (format out "chain: ~20a adjacent-match: ~a ~%"
+    (format out "chain: ~20a adjacent-match: ~10a choose: ~a ~%"
       (reverse (if ;(car char-match)
   (reduce (lambda (x y) (or x y)) (cons nil adjacent-match))
-   (setf chain (cons char chain)))) adjacent-match)
+   (setf chain (cons char chain)))) adjacent-match choose)
     )
   ))
 )
