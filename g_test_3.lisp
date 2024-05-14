@@ -36,9 +36,9 @@
         (let* ((cell (nth n (nth c chars-list)))
                (adjacent (adjacent-cells board (nth 0 cell) (nth 1 cell))))
           (dolist (adj prev-adjacent)
-            (setf match (if (= 4 (length match))
-                (list (equal (nth 2 cell) adj))
-                (cons (equal (nth 2 cell) adj) match)) ; reset instead of consing a 5th
+            (setf match ;(if (= 4 (length match))
+                ;(list (equal (nth 2 cell) adj))
+                (cons (equal (nth 2 cell) adj) match);) ; reset instead of consing a 5th
               any-match (reduce (lambda (x y) (or x y)) match))
             (format out "selected: ~a   previous: ~14a match: ~a ~%" (nth 2 cell) adj (car match)) )
           (format out "selected: ~a   adjacent: ~14a prev-adjacent: ~14a   any-match: ~a  matches: ~a ~%"
