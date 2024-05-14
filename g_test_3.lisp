@@ -37,6 +37,7 @@
                (adjacent (adjacent-cells board (nth 0 cell) (nth 1 cell))))
 ;          (flet ((any (m) (reduce (lambda (x y) (or x y)) m)))
           (setf char-match (list))
+;          (if choose (setf prev-adjacent (adjacent-cells board (nth 0 choose) (nth 1 choose)) ))
           (dolist (adj prev-adjacent)
             (setf match (if (= 4 (length match))
                 (list (equal (nth 2 cell) adj)) ; 
@@ -47,7 +48,7 @@
             (nth 2 cell) adjacent prev-adjacent
              (if (< 1 (length char-match)) (car char-match) char-match)  (length match))
           (if (car char-match) (setf prev-madjacent prev-adjacent)) ; to continue the chain
-          (setf prev-adjacent adjacent
+          (setf prev-adjacent (if choose (adjacent-cells board (car choose) (nth 1 choose)) adjacent)
             adjacent-match (cons (reduce (lambda (x y) (or x y)) (cons nil char-match)) adjacent-match))
           (if (car adjacent-match) (setf choose (list (nth 0 cell) (nth 1 cell))))
         );)
