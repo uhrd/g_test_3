@@ -30,34 +30,34 @@
     (let ((chars (length (nth c chars-list))) (choose nil)
           (char (nth 2 (car (nth c chars-list))))
           (match (list)) (adjacent-match (list)))
+    (flet ((any (m) (reduce #'(lambda (x y) (or x y)) m)))
       (format out "~a    prev-madjacent: ~a ~%" char prev-madjacent)
       (if (= c 0) (setf chain (list char)))
       (dotimes (n chars)
         (let* ((cell (nth n (nth c chars-list)))
                (adjacent (adjacent-cells board (nth 0 cell) (nth 1 cell))))
-;          (flet ((any (m) (reduce (lambda (x y) (or x y)) m)))
           (setf char-match (list))
 ;          (if choose (setf prev-adjacent (adjacent-cells board (nth 0 choose) (nth 1 choose)) ))
           (dolist (adj prev-adjacent)
             (setf match (if (= 4 (length match))
                 (list (equal (nth 2 cell) adj)) ; 
                 (cons (equal (nth 2 cell) adj) match)) ; reset instead of consing a 5th
-              char-match (cons (reduce (lambda (x y) (or x y)) match) char-match))
+              char-match (cons (any match) char-match))
             (format out "selected: ~a   previous: ~14a match: ~a ~%" (nth 2 cell) adj (car match)) )
           (format out "selected: ~a   adjacent: ~14a prev-adjacent: ~14a   char-match: ~a  matches: ~a ~%"
             (nth 2 cell) adjacent prev-adjacent
              (if (< 1 (length char-match)) (car char-match) char-match)  (length match))
           (if (car char-match) (setf prev-madjacent prev-adjacent)) ; to continue the chain
           (setf prev-adjacent (if choose (adjacent-cells board (car choose) (nth 1 choose)) adjacent)
-            adjacent-match (cons (reduce (lambda (x y) (or x y)) (cons nil char-match)) adjacent-match))
+            adjacent-match (cons (any (cons nil char-match)) adjacent-match))
           (if (car adjacent-match) (setf choose (list (nth 0 cell) (nth 1 cell))))
-        );)
+        )
       )
     (format out "chain: ~20a adjacent-match: ~10a choose: ~a ~%"
       (reverse (if ;(car char-match)
-  (reduce (lambda (x y) (or x y)) (cons nil adjacent-match))
+  (any (cons nil adjacent-match))
    (setf chain (cons char chain)))) adjacent-match choose)
-    )
+    ))
   ))
 )
 (defun construct-waifu (out chars-list) ; exploratory
